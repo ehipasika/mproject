@@ -1,0 +1,6 @@
+C:\inetpub\wwwroot\MProject\bin\MProject.dll.config
+C:\inetpub\wwwroot\MProject\bin\MProject.dll
+C:\inetpub\wwwroot\MProject\bin\MProject.pdb
+C:\inetpub\wwwroot\MProject\obj\Debug\MProject.dll
+C:\inetpub\wwwroot\MProject\obj\Debug\MProject.pdb
+C:\inetpub\wwwroot\MProject\obj\Debug\MProject.csprojResolveAssemblyReference.cache

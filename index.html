@@ -1,0 +1,131 @@
+﻿<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="description" content="OSG.JS examples using typescript by Peter Wraae Marino">
+    <meta name="keywords" content="OpenSceneGraph, Peter Wraae Marino, 3D Geometry, Typescript">
+    <meta name="author" content="Peter Wraae Marino">
+
+    <title>M-Project</title>
+
+    <link rel="stylesheet" href="app.css" type="text/css" />
+
+    <script src="ext/jquery/jquery-2.0.3.min.js"></script>
+    
+    <script src="http://osgjs.org/examples/vendors/core.js"></script>
+    <script src="http://osgjs.org/examples/vendors/bluebird.js"></script>
+
+    <script src="http://osgjs.org/examples/vendors/hammer.js"></script>
+    <script src="http://osgjs.org/builds/dist/OSG.js"></script>
+
+    <script src="app.js"></script>
+
+    <style>
+        body{
+            margin: 0;
+            padding: 0;
+            border: 0;
+            overflow: hidden;
+            height: 100%; 
+            max-height: 100%; 
+        }
+
+        #framecontent{
+            position: absolute;
+            top: 0;
+            bottom: 0; 
+            left: 0;
+            width: 210px; /*Width of frame div*/
+            height: 100%;
+            overflow: hidden; /*Disable scrollbars. Set to "scroll" to enable*/
+            background: #9E4848;
+            color: white;
+        }
+
+        #maincontent{
+            position: fixed;
+            top: 0; 
+            left: 210px; /*Set left value to WidthOfFrameDiv*/
+            right: 0;
+            bottom: 0;
+            overflow: auto; 
+            background: #fff;
+        }
+
+        .innertube{
+            margin: 15px; /*Margins for inner DIV inside each DIV (to provide padding)*/
+        }
+
+        * html body{ /*IE6 hack*/
+            padding: 0 0 0 200px; /*Set value to (0 0 0 WidthOfFrameDiv)*/
+        }
+
+        * html #maincontent{ /*IE6 hack*/
+            height: 100%; 
+            width: 100%; 
+        }
+
+        #mycanvas {
+            border: 1px solid black;
+            width: 100%;
+        }
+
+        input {
+            display: block;
+            width: 180px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="framecontent">
+        <div class="innertube">
+
+            <div id="menu">
+                <h2>Entities</h2>
+                <input type="button" name="EntityLine" value="Line" />
+                <input type="button" name="EntityCube" value="Cube" />
+                <input type="button" name="EntityCuboid" value="Cuboid" />
+                <input type="button" name="EntitySphere" value="Sphere" />
+                <input type="button" name="EntityPlane" value="Plane" />
+                <input type="button" name="EntityAxis" value="Axis" />
+                <input type="button" name="Grid" value="Grid" />
+
+                <h2>Intersections</h2>
+                <input type="button" name="ScreenPlaneIntersection" value="Screen Plane Intersection" />
+
+                <h2>Transformations</h2>
+                <input type="button" name="PointTo" value="Point To" />
+
+                <h2>Motion</h2>
+                <input type="button" name="Easing" value="Easing" />
+                <input type="button" name="EasingToMouse" value="Easing To Mouse" />
+                <input type="button" name="VerletPoint" value="Verlet Particle Intergration" />
+
+                <h2>Kinematics</h2>
+                <input type="button" name="IkDrag" value="IK Drag" />
+                <input type="button" name="IkReach" value="IK Reach" />
+
+            </div>
+
+        </div>
+    </div>
+
+
+    <div id="maincontent">
+        <div class="innertube">
+
+            <h1>M-Project (OSG.JS Examples using Typescript)</h1>
+            <p style="text-align: center">by Peter Wraae Marino</p>
+
+            <canvas id="mycanvas" width="800" height="600"></canvas>
+
+            <p>The important stuff:</p>
+            <a href="http://osgjs.org/">OSG.JS</a>
+
+        </div>
+    </div>
+
+</body>
+</html>
