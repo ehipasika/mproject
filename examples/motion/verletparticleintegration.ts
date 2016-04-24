@@ -4,13 +4,13 @@
 	private _cube: EntityCube = null;
 	private _cubeLen: number = 10;
 	private _sphereradius: number = 0.5;
-	//private _bounce_friction_coefficient = 0.9;
-	private _bounce_friction_coefficient = 1;
-	//private _friction_coeficient = 0.99;
-	private _friction_coeficient = 1;
-	//private _gravity: number = -0.05;
-	private _gravity: number = 0;
-	private _points: VerletParticle[] = [];
+	private _bounce_friction_coefficient = 0.9;
+	//private _bounce_friction_coefficient = 1;
+	private _friction_coeficient = 0.99;
+	//private _friction_coeficient = 1;
+	private _gravity: number = -0.02;
+	//private _gravity: number = 0;
+	private _particles: VerletParticle[] = [];
 
 	create() {
 		this._grid = new EntityGrid({
@@ -39,7 +39,7 @@
 	}
 
 	protected particle(index: number) {
-		return this._points[index];
+		return this._particles[index];
 	}
 
 	protected createParticles() {
@@ -56,15 +56,15 @@
 		sphere.create();
 		this.pivot().addChild(sphere);
 
-		this._points.push(new VerletParticle(
+		this._particles.push(new VerletParticle(
 			pos, pos_old, sphere
 		));
 	}
 
 	protected constrainParticles() {
 		
-		for (var i = 0; i < this._points.length; i++) {
-			var p: VerletParticle = this._points[i];
+		for (var i = 0; i < this._particles.length; i++) {
+			var p: VerletParticle = this._particles[i];
 
 			// calc velocity based on previous position
 			var vel: osg.Vec3 = osg.Vec3.create();
@@ -108,8 +108,8 @@
 
 	protected updateParticles() {
 		// update points - verlet
-		for (var i = 0; i < this._points.length; i++) {
-			var p: VerletParticle = this._points[i];
+		for (var i = 0; i < this._particles.length; i++) {
+			var p: VerletParticle = this._particles[i];
 
 			// calc velocity based on previous position
 			var vel: osg.Vec3 = osg.Vec3.create();
@@ -122,48 +122,13 @@
 			// add velocity to current position
 			osg.Vec3.add(p._pos, vel, p._pos);
 			p._pos[2] += this._gravity;
-
-			/*
-			// check for collision and adjust
-			var c: number = (this._cubeLen / 2) - this._sphereradius;
-
-			if (p._pos[0] > c) {	// reflect x at boundry right
-				p._pos[0] = c;
-				p._pos_old[0] = p._pos[0] + vel[0] * this._bounce_friction_coefficient;
-			}
-
-			if (p._pos[0] < -c) { // reflect x at boundry left
-				p._pos[0] = -c;
-				p._pos_old[0] = p._pos[0] + vel[0] * this._bounce_friction_coefficient;
-			}
-
-			if (p._pos[1] > c) {	// reflect y at boundry back
-				p._pos[1] = c;
-				p._pos_old[1] = p._pos[1] + vel[1] * this._bounce_friction_coefficient;
-			}
-
-			if (p._pos[1] < -c) { // reflect y at boundry front
-				p._pos[1] = -c;
-				p._pos_old[1] = p._pos[1] + vel[1] * this._bounce_friction_coefficient;
-			}
-
-			if (p._pos[2] > c) {	// reflect z at boundry top
-				p._pos[2] = c
-				p._pos_old[2] = p._pos[2] + vel[2] * this._bounce_friction_coefficient;
-			}
-
-			if (p._pos[2] < -c) { // reflect z at boundry bottom
-				p._pos[2] = -c;
-				p._pos_old[2] = p._pos[2] + vel[2] * this._bounce_friction_coefficient;
-			}
-			*/
 		}
 	}
 
 	protected updateRender() {
 		// update sphere
-		for (var i = 0; i < this._points.length; i++) {
-			var p: VerletParticle = this._points[i];
+		for (var i = 0; i < this._particles.length; i++) {
+			var p: VerletParticle = this._particles[i];
 			p._entity.setPositionFromVec3(p._pos);
 		}
 	}

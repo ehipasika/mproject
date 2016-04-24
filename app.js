@@ -761,10 +761,10 @@ var VerletParticleIntegration = (function (_super) {
         this._cube = null;
         this._cubeLen = 10;
         this._sphereradius = 0.5;
-        this._bounce_friction_coefficient = 1;
-        this._friction_coeficient = 1;
-        this._gravity = 0;
-        this._points = [];
+        this._bounce_friction_coefficient = 0.9;
+        this._friction_coeficient = 0.99;
+        this._gravity = -0.02;
+        this._particles = [];
     }
     VerletParticleIntegration.prototype.create = function () {
         var _this = this;
@@ -787,7 +787,7 @@ var VerletParticleIntegration = (function (_super) {
         }));
     };
     VerletParticleIntegration.prototype.particle = function (index) {
-        return this._points[index];
+        return this._particles[index];
     };
     VerletParticleIntegration.prototype.createParticles = function () {
         this.addParticle(osg.Vec3.createAndSet(5, 5, 5), osg.Vec3.createAndSet(4.9, 4.8, 4.7));
@@ -798,11 +798,11 @@ var VerletParticleIntegration = (function (_super) {
         });
         sphere.create();
         this.pivot().addChild(sphere);
-        this._points.push(new VerletParticle(pos, pos_old, sphere));
+        this._particles.push(new VerletParticle(pos, pos_old, sphere));
     };
     VerletParticleIntegration.prototype.constrainParticles = function () {
-        for (var i = 0; i < this._points.length; i++) {
-            var p = this._points[i];
+        for (var i = 0; i < this._particles.length; i++) {
+            var p = this._particles[i];
             var vel = osg.Vec3.create();
             osg.Vec3.sub(p._pos, p._pos_old, vel);
             osg.Vec3.mult(vel, this._friction_coeficient, vel);
@@ -834,8 +834,8 @@ var VerletParticleIntegration = (function (_super) {
         }
     };
     VerletParticleIntegration.prototype.updateParticles = function () {
-        for (var i = 0; i < this._points.length; i++) {
-            var p = this._points[i];
+        for (var i = 0; i < this._particles.length; i++) {
+            var p = this._particles[i];
             var vel = osg.Vec3.create();
             osg.Vec3.sub(p._pos, p._pos_old, vel);
             osg.Vec3.mult(vel, this._friction_coeficient, vel);
@@ -845,8 +845,8 @@ var VerletParticleIntegration = (function (_super) {
         }
     };
     VerletParticleIntegration.prototype.updateRender = function () {
-        for (var i = 0; i < this._points.length; i++) {
-            var p = this._points[i];
+        for (var i = 0; i < this._particles.length; i++) {
+            var p = this._particles[i];
             p._entity.setPositionFromVec3(p._pos);
         }
     };
@@ -858,10 +858,11 @@ var VerletParticleIntegration = (function (_super) {
     return VerletParticleIntegration;
 })(EntityNode);
 var VerletStick = (function () {
-    function VerletStick(p0, p1) {
+    function VerletStick(p0, p1, line) {
         this._p0 = p0;
         this._p1 = p1;
         this._dist = osg.Vec3.distance(p0._pos, p1._pos);
+        this._line = line;
     }
     return VerletStick;
 })();
@@ -876,11 +877,14 @@ var VerletStickIntegration = (function (_super) {
         this.addStick(this.particle(0), this.particle(1));
     };
     VerletStickIntegration.prototype.createParticles = function () {
-        this.addParticle(osg.Vec3.createAndSet(0, 0, 4), osg.Vec3.createAndSet(0, 0, 3.9));
-        this.addParticle(osg.Vec3.createAndSet(4, 0, 5), osg.Vec3.createAndSet(4, 0, 4.7));
+        this.addParticle(osg.Vec3.createAndSet(3, 3, 3), osg.Vec3.createAndSet(3, 3, 3));
+        this.addParticle(osg.Vec3.createAndSet(5, 5, 5), osg.Vec3.createAndSet(4.9, 4.8, 4.7));
     };
     VerletStickIntegration.prototype.addStick = function (p0, p1) {
-        this._sticks.push(new VerletStick(p0, p1));
+        var line = new EntityLine();
+        line.create();
+        this.pivot().addChild(line);
+        this._sticks.push(new VerletStick(p0, p1, line));
     };
     VerletStickIntegration.prototype.updateSticks = function () {
         for (var i = 0; i < this._sticks.length; i++) {
@@ -893,6 +897,13 @@ var VerletStickIntegration = (function (_super) {
             osg.Vec3.mult(adjust_vec, diff / 2, adjust_vec);
             osg.Vec3.add(s._p0._pos, adjust_vec, s._p0._pos);
             osg.Vec3.sub(s._p1._pos, adjust_vec, s._p1._pos);
+        }
+    };
+    VerletStickIntegration.prototype.updateRender = function () {
+        _super.prototype.updateRender.call(this);
+        for (var i = 0; i < this._sticks.length; i++) {
+            var s = this._sticks[i];
+            s._line.setPosition(s._p0._pos, s._p1._pos);
         }
     };
     VerletStickIntegration.prototype.update = function () {
