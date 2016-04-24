@@ -43,9 +43,12 @@
     <TypeScriptCompile Include="examples\grid.ts" />
     <TypeScriptCompile Include="examples\ikdrag.ts" />
     <TypeScriptCompile Include="examples\ikreach.ts" />
+    <TypeScriptCompile Include="examples\motion\verletparticle.ts" />
+    <TypeScriptCompile Include="examples\motion\verletparticleintegration.ts" />
+    <TypeScriptCompile Include="examples\motion\verletstick.ts" />
+    <TypeScriptCompile Include="examples\motion\verletstickintegration.ts" />
     <TypeScriptCompile Include="examples\screenplaneintersection.ts" />
     <TypeScriptCompile Include="examples\tranformations\pointo.ts" />
-    <TypeScriptCompile Include="examples\verletpoint.ts" />
     <TypeScriptCompile Include="osgjs.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
     <TypeScriptCompile Include="utils\zcanvas.ts" />

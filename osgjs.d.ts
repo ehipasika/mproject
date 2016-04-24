@@ -16,7 +16,10 @@
 		create(): osg.Vec3;
 		createAndSet(x, y, z): osg.Vec3;
 		set(x, y, z, result: osg.Vec3): osg.Vec3;
+
+		distance(a: osg.Vec3, b: osg.Vec3): number;
 		length(): number;
+
 		add(a: osg.Vec3, b: osg.Vec3, result: osg.Vec3): osg.Vec3;
 		sub(a: osg.Vec3, b: osg.Vec3, result: osg.Vec3): osg.Vec3;		// note:  a - b = result
 		mult(a: osg.Vec3, b: number, result: osg.Vec3): osg.Vec3;

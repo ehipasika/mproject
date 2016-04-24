@@ -53,6 +53,4 @@
 		osg.Matrix.setTrans(m, pos[0], pos[1], pos[2]);
 	}
 
-
-
 }
