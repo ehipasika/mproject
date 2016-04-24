@@ -1,4 +1,5 @@
-﻿class VerletPoint extends EntityNode {
+﻿/*
+class VerletParticleIntergration extends EntityNode {
 
 	private _grid: EntityGrid = null;
 	private _cube: EntityCube = null;
@@ -12,12 +13,6 @@
 		{
 			pos: osg.Vec3.createAndSet(5, 5, 5),
 			pos_old: osg.Vec3.createAndSet(4.9, 4.8, 4.7),
-
-			/*
-			pos: osg.Vec3.createAndSet(0, 0, 5),
-			pos_old: osg.Vec3.createAndSet(0, 0, 4.7),
-			*/
-
 			sphere: null
 		}
 	];
@@ -55,6 +50,9 @@
 		this.addUpdateCallback(new UpdateCallback((node, nodeVisitor) => {
 			this.update();
 		}));
+	}
+
+	protected addPoint() {
 	}
 
 	protected update() {
@@ -115,4 +113,4 @@
 	}
 }
 
-
+*/
