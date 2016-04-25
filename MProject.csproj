@@ -43,6 +43,7 @@
     <TypeScriptCompile Include="examples\grid.ts" />
     <TypeScriptCompile Include="examples\ikdrag.ts" />
     <TypeScriptCompile Include="examples\ikreach.ts" />
+    <TypeScriptCompile Include="examples\motion\verletcubeintegration.ts" />
     <TypeScriptCompile Include="examples\motion\verletparticle.ts" />
     <TypeScriptCompile Include="examples\motion\verletparticleintegration.ts" />
     <TypeScriptCompile Include="examples\motion\verletstick.ts" />

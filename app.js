@@ -743,16 +743,6 @@ var IkReach = (function (_super) {
     };
     return IkReach;
 })(IkDrag);
-var VerletParticle = (function () {
-    function VerletParticle(pos, pos_old, entity) {
-        this._pos = osg.Vec3.create();
-        this._pos_old = osg.Vec3.create();
-        osg.Vec3.copy(pos, this._pos);
-        osg.Vec3.copy(pos_old, this._pos_old);
-        this._entity = entity;
-    }
-    return VerletParticle;
-})();
 var VerletParticleIntegration = (function (_super) {
     __extends(VerletParticleIntegration, _super);
     function VerletParticleIntegration() {
@@ -791,6 +781,12 @@ var VerletParticleIntegration = (function (_super) {
     };
     VerletParticleIntegration.prototype.createParticles = function () {
         this.addParticle(osg.Vec3.createAndSet(5, 5, 5), osg.Vec3.createAndSet(4.9, 4.8, 4.7));
+    };
+    VerletParticleIntegration.prototype.AddParticleSimplified = function (x, y, z, x_vel, y_vel, z_vel) {
+        if (x_vel === void 0) { x_vel = 0; }
+        if (y_vel === void 0) { y_vel = 0; }
+        if (z_vel === void 0) { z_vel = 0; }
+        this.addParticle(osg.Vec3.createAndSet(x, y, z), osg.Vec3.createAndSet(x + x_vel, y + y_vel, z + z_vel));
     };
     VerletParticleIntegration.prototype.addParticle = function (pos, pos_old) {
         var sphere = new EntitySphere({
@@ -857,15 +853,6 @@ var VerletParticleIntegration = (function (_super) {
     };
     return VerletParticleIntegration;
 })(EntityNode);
-var VerletStick = (function () {
-    function VerletStick(p0, p1, line) {
-        this._p0 = p0;
-        this._p1 = p1;
-        this._dist = osg.Vec3.distance(p0._pos, p1._pos);
-        this._line = line;
-    }
-    return VerletStick;
-})();
 var VerletStickIntegration = (function (_super) {
     __extends(VerletStickIntegration, _super);
     function VerletStickIntegration() {
@@ -874,11 +861,17 @@ var VerletStickIntegration = (function (_super) {
     }
     VerletStickIntegration.prototype.create = function () {
         _super.prototype.create.call(this);
-        this.addStick(this.particle(0), this.particle(1));
+        this.createSticks();
     };
     VerletStickIntegration.prototype.createParticles = function () {
         this.addParticle(osg.Vec3.createAndSet(3, 3, 3), osg.Vec3.createAndSet(3, 3, 3));
         this.addParticle(osg.Vec3.createAndSet(5, 5, 5), osg.Vec3.createAndSet(4.9, 4.8, 4.7));
+    };
+    VerletStickIntegration.prototype.createSticks = function () {
+        this.addStick(this.particle(0), this.particle(1));
+    };
+    VerletStickIntegration.prototype.addStickSimplified = function (particle_index0, particle_index1) {
+        this.addStick(this.particle(particle_index0), this.particle(particle_index1));
     };
     VerletStickIntegration.prototype.addStick = function (p0, p1) {
         var line = new EntityLine();
@@ -908,12 +901,74 @@ var VerletStickIntegration = (function (_super) {
     };
     VerletStickIntegration.prototype.update = function () {
         this.updateParticles();
-        this.updateSticks();
-        this.constrainParticles();
+        for (var i = 0; i < 3; i++) {
+            this.updateSticks();
+            this.constrainParticles();
+        }
         this.updateRender();
     };
     return VerletStickIntegration;
 })(VerletParticleIntegration);
+var VerletCubeIntegration = (function (_super) {
+    __extends(VerletCubeIntegration, _super);
+    function VerletCubeIntegration() {
+        _super.apply(this, arguments);
+    }
+    VerletCubeIntegration.prototype.createParticles = function () {
+        this.AddParticleSimplified(-2, 0, 4, 5);
+        this.AddParticleSimplified(0, 0, 4, 0, -3);
+        this.AddParticleSimplified(0, -2, 4, 0);
+        this.AddParticleSimplified(-2, -2, 4, 0);
+        this.AddParticleSimplified(-2, 0, 2, 0);
+        this.AddParticleSimplified(0, 0, 2, 0);
+        this.AddParticleSimplified(0, -2, 2, 0);
+        this.AddParticleSimplified(-2, -2, 2, 0);
+    };
+    VerletCubeIntegration.prototype.createSticks = function () {
+        this.addStickSimplified(0, 1);
+        this.addStickSimplified(1, 2);
+        this.addStickSimplified(2, 3);
+        this.addStickSimplified(3, 0);
+        this.addStickSimplified(0, 4);
+        this.addStickSimplified(1, 5);
+        this.addStickSimplified(2, 6);
+        this.addStickSimplified(3, 7);
+        this.addStickSimplified(4, 5);
+        this.addStickSimplified(5, 6);
+        this.addStickSimplified(6, 7);
+        this.addStickSimplified(7, 4);
+        this.addStickSimplified(0, 2);
+        this.addStickSimplified(4, 6);
+        this.addStickSimplified(3, 6);
+        this.addStickSimplified(0, 5);
+        this.addStickSimplified(0, 7);
+        this.addStickSimplified(1, 6);
+        this.addStickSimplified(0, 6);
+        this.addStickSimplified(1, 7);
+        this.addStickSimplified(2, 4);
+        this.addStickSimplified(3, 5);
+    };
+    return VerletCubeIntegration;
+})(VerletStickIntegration);
+var VerletParticle = (function () {
+    function VerletParticle(pos, pos_old, entity) {
+        this._pos = osg.Vec3.create();
+        this._pos_old = osg.Vec3.create();
+        osg.Vec3.copy(pos, this._pos);
+        osg.Vec3.copy(pos_old, this._pos_old);
+        this._entity = entity;
+    }
+    return VerletParticle;
+})();
+var VerletStick = (function () {
+    function VerletStick(p0, p1, line) {
+        this._p0 = p0;
+        this._p1 = p1;
+        this._dist = osg.Vec3.distance(p0._pos, p1._pos);
+        this._line = line;
+    }
+    return VerletStick;
+})();
 var PointTo = (function (_super) {
     __extends(PointTo, _super);
     function PointTo() {

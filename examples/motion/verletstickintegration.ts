@@ -1,14 +1,12 @@
-﻿class VerletStickIntegration extends VerletParticleIntegration {
+﻿/// <reference path="verletparticleintegration.ts"/>
+
+class VerletStickIntegration extends VerletParticleIntegration {
 
 	private _sticks:VerletStick[] = [];
 
 	create() {
 		super.create();
-
-		this.addStick(
-			this.particle(0),
-			this.particle(1)
-		);
+		this.createSticks();
 	}
 
 	protected createParticles() {
@@ -18,14 +16,26 @@
 		);
 
 		this.addParticle(
-			
 			osg.Vec3.createAndSet(5, 5, 5),
 			osg.Vec3.createAndSet(4.9, 4.8, 4.7)
-			
 			/*			
 			osg.Vec3.createAndSet(4, 0, 5),
 			osg.Vec3.createAndSet(4.1, 0, 4.7)
 			*/
+		);
+	}
+
+	protected createSticks() {
+		this.addStick(
+			this.particle(0),
+			this.particle(1)
+		);
+	}
+
+	protected addStickSimplified(particle_index0: number, particle_index1: number) {
+		this.addStick(
+			this.particle(particle_index0),
+			this.particle(particle_index1)
 		);
 	}
 
@@ -54,11 +64,6 @@
 			
 			osg.Vec3.add(s._p0._pos, adjust_vec, s._p0._pos);
 			osg.Vec3.sub(s._p1._pos, adjust_vec, s._p1._pos);
-
-			/*
-			osg.Vec3.add(s._p0._pos_old, adjust_vec, s._p0._pos_old);
-			osg.Vec3.sub(s._p1._pos_old, adjust_vec, s._p1._pos_old);
-			*/
 		}
 	}
 
@@ -74,8 +79,13 @@
 
 	protected update() {
 		this.updateParticles();
-		this.updateSticks();
-		this.constrainParticles();
+
+		// add some relaxation
+		for (var i = 0; i < 3; i++) {
+			this.updateSticks();
+			this.constrainParticles();
+		}
+
 		this.updateRender();
 	}
 

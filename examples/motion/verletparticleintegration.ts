@@ -49,6 +49,13 @@
 		);
 	}
 
+	protected AddParticleSimplified(x: number, y: number, z: number, x_vel: number = 0, y_vel: number = 0, z_vel: number = 0) {
+		this.addParticle(
+			osg.Vec3.createAndSet(x, y, z),
+			osg.Vec3.createAndSet(x + x_vel, y + y_vel, z + z_vel)
+		);
+	}
+
 	protected addParticle(pos: osg.Vec3, pos_old?: osg.Vec3) {
 		var sphere: EntitySphere = new EntitySphere({
 			radius: this._sphereradius
