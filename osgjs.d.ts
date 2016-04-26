@@ -118,7 +118,7 @@
 
 		getOrCreateStateSet(): StateSet;
 
-        addUpdateCallback(cb);
+        addUpdateCallback(cb) : boolean;
 
 		dirtyBound();
 	}

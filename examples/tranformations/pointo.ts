@@ -27,7 +27,7 @@
 		}
 
 		this.addUpdateCallback(new UpdateCallback((node, nodeVisitor) => {
-			this.update();
+			return this.update();
 		}));
 	}
 
@@ -35,7 +35,7 @@
 		this.calcIntersection(event.clientX, event.clientY);
 	}
 
-	protected update() {
+	protected update() : boolean {
 		super.update();
 
 		for (var i = 0; i < this._mapPos.length; i++) {
@@ -57,6 +57,8 @@
 			// rotate cuboid
 			cuboid.setRotationFromQuat(rot);
 		}
+
+		return true;
 	}
 
 }

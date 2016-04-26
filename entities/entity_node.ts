@@ -15,12 +15,19 @@ abstract class EntityNode extends osg.MatrixTransform {
 	constructor(params: EntityNode.params = {}) {
 		super();
 
+		params.show_pivot = params.show_pivot || false;
+		params.create = params.create || false;
+		params.position = params.position || osg.Vec3.create();
+		
+
+		/*
 		// defaults
 		params = $.extend(true, {
 			show_pivot: false,
 			create: false,
 			position: osg.Vec3.create()
 		}, params);
+		*/
 
 		this._params = params;
 

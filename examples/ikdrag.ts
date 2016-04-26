@@ -31,7 +31,7 @@
 		return bone.rootBone();
 	}
 
-	protected update() {
+	protected update() : boolean {
 		super.update();
 
 		// position of target (sphere)
@@ -66,6 +66,8 @@
 			last_pos = bone.position();
 			bone = bone.parentBone();
 		}
+
+		return true;
 	}
 
 }

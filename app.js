@@ -6,7 +6,7 @@ var UpdateCallback = (function () {
         this._cb = cb;
     }
     UpdateCallback.prototype.update = function (node, nodeVisitor) {
-        this._cb(node, nodeVisitor);
+        return this._cb(node, nodeVisitor);
     };
     return UpdateCallback;
 })();
@@ -78,11 +78,9 @@ var EntityNode = (function (_super) {
         _super.call(this);
         this._params = {};
         this._pivot = new osg.MatrixTransform;
-        params = $.extend(true, {
-            show_pivot: false,
-            create: false,
-            position: osg.Vec3.create()
-        }, params);
+        params.show_pivot = params.show_pivot || false;
+        params.create = params.create || false;
+        params.position = params.position || osg.Vec3.create();
         this._params = params;
         if (!(this instanceof EntityAxis) && this._params.show_pivot) {
             this.addChild(new EntityAxis({ size: 2, create: true }));
@@ -575,21 +573,33 @@ var EntitySphere = (function (_super) {
 })(EntityNode);
 var ScreenPlaneIntersection = (function (_super) {
     __extends(ScreenPlaneIntersection, _super);
-    function ScreenPlaneIntersection() {
-        _super.apply(this, arguments);
+    function ScreenPlaneIntersection(show_grid) {
+        if (show_grid === void 0) { show_grid = true; }
+        _super.call(this);
         this._grid = null;
         this._plane = null;
         this._sphere = null;
+        this._show_grid = show_grid;
     }
     ScreenPlaneIntersection.prototype.create = function () {
         this._plane = osg.Plane.createAndSet(0, 0, 1, 0);
-        this._grid = new EntityGrid;
-        this._grid.create();
-        this.pivot().addChild(this._grid);
+        if (this._show_grid) {
+            this.createGrid();
+        }
         this._sphere = new EntitySphere;
         this._sphere.create();
         this.pivot().addChild(this._sphere);
         this.createListerners();
+    };
+    ScreenPlaneIntersection.prototype.spherePosition = function () {
+        var pos = osg.Vec3.create();
+        osg.Matrix.getTrans(this._sphere.getMatrix(), pos);
+        return pos;
+    };
+    ScreenPlaneIntersection.prototype.createGrid = function () {
+        this._grid = new EntityGrid;
+        this._grid.create();
+        this.pivot().addChild(this._grid);
     };
     ScreenPlaneIntersection.prototype.createListerners = function () {
         var _this = this;
@@ -627,7 +637,7 @@ var Easing = (function (_super) {
         var _this = this;
         _super.prototype.create.call(this);
         this.addUpdateCallback(new UpdateCallback(function (node, nodeVisitor) {
-            _this.update();
+            return _this.update();
         }));
     };
     Easing.prototype.updateTargetPosition = function (pos) {
@@ -645,6 +655,7 @@ var Easing = (function (_super) {
             osg.Vec3.add(curPos, v, v);
             osg.Matrix.setTrans(m, v[0], v[1], v[2]);
         }
+        return true;
     };
     return Easing;
 })(ScreenPlaneIntersection);
@@ -720,6 +731,7 @@ var IkDrag = (function (_super) {
             last_pos = bone.position();
             bone = bone.parentBone();
         }
+        return true;
     };
     return IkDrag;
 })(EasingToMouse);
@@ -740,13 +752,15 @@ var IkReach = (function (_super) {
             osg.Vec3.add(last_pos, vLen, last_pos);
             bone = bone.childBone();
         }
+        return true;
     };
     return IkReach;
 })(IkDrag);
 var VerletParticleIntegration = (function (_super) {
     __extends(VerletParticleIntegration, _super);
-    function VerletParticleIntegration() {
-        _super.apply(this, arguments);
+    function VerletParticleIntegration(params) {
+        if (params === void 0) { params = {}; }
+        _super.call(this, params);
         this._grid = null;
         this._cube = null;
         this._cubeLen = 10;
@@ -755,7 +769,12 @@ var VerletParticleIntegration = (function (_super) {
         this._friction_coeficient = 0.99;
         this._gravity = -0.02;
         this._particles = [];
+        params.show_particle = params.show_particle || true;
+        params.radius = params.radius || 0.5;
     }
+    VerletParticleIntegration.prototype.params = function () {
+        return _super.prototype.params.call(this);
+    };
     VerletParticleIntegration.prototype.create = function () {
         var _this = this;
         this._grid = new EntityGrid({
@@ -773,7 +792,7 @@ var VerletParticleIntegration = (function (_super) {
         this._cube.dirtyBound();
         this.createParticles();
         this.addUpdateCallback(new UpdateCallback(function (node, nodeVisitor) {
-            _this.update();
+            return _this.update();
         }));
     };
     VerletParticleIntegration.prototype.particle = function (index) {
@@ -786,19 +805,25 @@ var VerletParticleIntegration = (function (_super) {
         if (x_vel === void 0) { x_vel = 0; }
         if (y_vel === void 0) { y_vel = 0; }
         if (z_vel === void 0) { z_vel = 0; }
-        this.addParticle(osg.Vec3.createAndSet(x, y, z), osg.Vec3.createAndSet(x + x_vel, y + y_vel, z + z_vel));
+        return this.addParticle(osg.Vec3.createAndSet(x, y, z), osg.Vec3.createAndSet(x + x_vel, y + y_vel, z + z_vel));
     };
     VerletParticleIntegration.prototype.addParticle = function (pos, pos_old) {
+        var params = this.params();
         var sphere = new EntitySphere({
-            radius: this._sphereradius
+            radius: params.radius
         });
         sphere.create();
         this.pivot().addChild(sphere);
-        this._particles.push(new VerletParticle(pos, pos_old, sphere));
+        var p = new VerletParticle(pos, pos_old, sphere);
+        this._particles.push(p);
+        return p;
     };
-    VerletParticleIntegration.prototype.constrainParticles = function () {
-        for (var i = 0; i < this._particles.length; i++) {
-            var p = this._particles[i];
+    VerletParticleIntegration.prototype.updateConstrainParticles = function () {
+        this.constrainParticles(this._particles);
+    };
+    VerletParticleIntegration.prototype.constrainParticles = function (particles) {
+        for (var i = 0; i < particles.length; i++) {
+            var p = particles[i];
             var vel = osg.Vec3.create();
             osg.Vec3.sub(p._pos, p._pos_old, vel);
             osg.Vec3.mult(vel, this._friction_coeficient, vel);
@@ -832,6 +857,9 @@ var VerletParticleIntegration = (function (_super) {
     VerletParticleIntegration.prototype.updateParticles = function () {
         for (var i = 0; i < this._particles.length; i++) {
             var p = this._particles[i];
+            if (p._pinned) {
+                continue;
+            }
             var vel = osg.Vec3.create();
             osg.Vec3.sub(p._pos, p._pos_old, vel);
             osg.Vec3.mult(vel, this._friction_coeficient, vel);
@@ -848,8 +876,9 @@ var VerletParticleIntegration = (function (_super) {
     };
     VerletParticleIntegration.prototype.update = function () {
         this.updateParticles();
-        this.constrainParticles();
+        this.updateConstrainParticles();
         this.updateRender();
+        return true;
     };
     return VerletParticleIntegration;
 })(EntityNode);
@@ -888,8 +917,12 @@ var VerletStickIntegration = (function (_super) {
             osg.Vec3.sub(s._p0._pos, s._p1._pos, adjust_vec);
             osg.Vec3.normalize(adjust_vec, adjust_vec);
             osg.Vec3.mult(adjust_vec, diff / 2, adjust_vec);
-            osg.Vec3.add(s._p0._pos, adjust_vec, s._p0._pos);
-            osg.Vec3.sub(s._p1._pos, adjust_vec, s._p1._pos);
+            if (!s._p0._pinned) {
+                osg.Vec3.add(s._p0._pos, adjust_vec, s._p0._pos);
+            }
+            if (!s._p1._pinned) {
+                osg.Vec3.sub(s._p1._pos, adjust_vec, s._p1._pos);
+            }
         }
     };
     VerletStickIntegration.prototype.updateRender = function () {
@@ -903,12 +936,83 @@ var VerletStickIntegration = (function (_super) {
         this.updateParticles();
         for (var i = 0; i < 3; i++) {
             this.updateSticks();
-            this.constrainParticles();
+            this.updateConstrainParticles();
         }
         this.updateRender();
+        return true;
     };
     return VerletStickIntegration;
 })(VerletParticleIntegration);
+var VerletClothSimulation = (function (_super) {
+    __extends(VerletClothSimulation, _super);
+    function VerletClothSimulation() {
+        _super.call(this, {
+            radius: 0.1
+        });
+        this._numX = 7;
+        this._numY = 5;
+    }
+    VerletClothSimulation.prototype.create = function () {
+        _super.prototype.create.call(this);
+        this._em = new EasingToMouse(false);
+        this._em.create();
+        this.pivot().addChild(this._em);
+    };
+    VerletClothSimulation.prototype.createParticles = function () {
+        var x_ofs = -(this._numX - 1) / 2;
+        for (var y = 0; y < this._numY; y++) {
+            for (var x = 0; x < this._numX; x++) {
+                var p = this.AddParticleSimplified(x + x_ofs, 0, 3 - y);
+                if (y == 0 && (x == 0 || x == this._numX - 1)) {
+                    p.setPinned(true);
+                }
+            }
+        }
+    };
+    VerletClothSimulation.prototype.createSticks = function () {
+        for (var y = 0; y < this._numY; y++) {
+            for (var x = 0; x < this._numX - 1; x++) {
+                var i0 = x + this._numX * y;
+                var i1 = i0 + 1;
+                this.addStickSimplified(i0, i1);
+            }
+        }
+        for (var y = 0; y < this._numY - 1; y++) {
+            for (var x = 0; x < this._numX; x++) {
+                var i0 = x + this._numX * y;
+                var i1 = x + this._numX * (y + 1);
+                this.addStickSimplified(i0, i1);
+            }
+        }
+    };
+    VerletClothSimulation.prototype.constrainParticles = function (particles) {
+        var vec = osg.Vec3.create();
+        var spherePos = this._em.spherePosition();
+        for (var i = 0; i < particles.length; i++) {
+            var p = particles[i];
+            var vel = osg.Vec3.create();
+            osg.Vec3.sub(p._pos, p._pos_old, vel);
+            var dist = osg.Vec3.distance(spherePos, p._pos);
+            if (dist < 1) {
+                osg.Vec3.sub(spherePos, p._pos, vec);
+                osg.Vec3.normalize(vec, vec);
+                osg.Vec3.mult(vec, 1 - dist, vec);
+                osg.Vec3.sub(p._pos, vec, p._pos);
+                osg.Vec3.add(p._pos_old, vec, p._pos_old);
+            }
+        }
+    };
+    VerletClothSimulation.prototype.update = function () {
+        this.updateParticles();
+        for (var i = 0; i < 1; i++) {
+            this.updateSticks();
+            this.updateConstrainParticles();
+        }
+        this.updateRender();
+        return true;
+    };
+    return VerletClothSimulation;
+})(VerletStickIntegration);
 var VerletCubeIntegration = (function (_super) {
     __extends(VerletCubeIntegration, _super);
     function VerletCubeIntegration() {
@@ -954,10 +1058,14 @@ var VerletParticle = (function () {
     function VerletParticle(pos, pos_old, entity) {
         this._pos = osg.Vec3.create();
         this._pos_old = osg.Vec3.create();
+        this._pinned = false;
         osg.Vec3.copy(pos, this._pos);
         osg.Vec3.copy(pos_old, this._pos_old);
         this._entity = entity;
     }
+    VerletParticle.prototype.setPinned = function (pinned) {
+        this._pinned = pinned;
+    };
     return VerletParticle;
 })();
 var VerletStick = (function () {
@@ -998,7 +1106,7 @@ var PointTo = (function (_super) {
             this._cuboids.push(cuboid);
         }
         this.addUpdateCallback(new UpdateCallback(function (node, nodeVisitor) {
-            _this.update();
+            return _this.update();
         }));
     };
     PointTo.prototype.onMouseMove = function (event) {
@@ -1017,6 +1125,7 @@ var PointTo = (function (_super) {
             osg.Quat.makeRotateFromTo(from, to, rot);
             cuboid.setRotationFromQuat(rot);
         }
+        return true;
     };
     return PointTo;
 })(Easing);

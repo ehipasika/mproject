@@ -5,7 +5,7 @@
 		this._segmentCount = 3;
 	}
 
-	update() {
+	update() : boolean {
 
 		// call super IkDrag update (inverse pass)
 		super.update();
@@ -24,5 +24,7 @@
 
 			bone = bone.childBone();
 		}
+
+		return true;
 	}
 }

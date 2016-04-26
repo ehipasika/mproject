@@ -1,17 +1,32 @@
-﻿class VerletParticleIntegration extends EntityNode {
+﻿module Verlet {
+	export interface ParamsParticleIntegration extends EntityNode.params {
+		show_particle?: boolean;
+		radius?: number;
+	}
+}
+
+class VerletParticleIntegration extends EntityNode {
 
 	private _grid: EntityGrid = null;
 	private _cube: EntityCube = null;
 	private _cubeLen: number = 10;
 	private _sphereradius: number = 0.5;
 	private _bounce_friction_coefficient = 0.9;
-	//private _bounce_friction_coefficient = 1;
 	private _friction_coeficient = 0.99;
-	//private _friction_coeficient = 1;
 	private _gravity: number = -0.02;
-	//private _gravity: number = 0;
 	private _particles: VerletParticle[] = [];
 
+	constructor(params: Verlet.ParamsParticleIntegration = {}) {
+		super(params);
+
+		params.show_particle = params.show_particle || true;
+		params.radius = params.radius || 0.5;
+	}
+
+	params(): Verlet.ParamsParticleIntegration {
+		return <Verlet.ParamsParticleIntegration>super.params();
+	}
+	
 	create() {
 		this._grid = new EntityGrid({
 			position: osg.Vec3.createAndSet(0, 0, -this._cubeLen / 2)
@@ -34,7 +49,7 @@
 		this.createParticles();
 
 		this.addUpdateCallback(new UpdateCallback((node, nodeVisitor) => {
-			this.update();
+			return this.update();
 		}));
 	}
 
@@ -49,29 +64,39 @@
 		);
 	}
 
-	protected AddParticleSimplified(x: number, y: number, z: number, x_vel: number = 0, y_vel: number = 0, z_vel: number = 0) {
-		this.addParticle(
+	protected AddParticleSimplified(x: number, y: number, z: number, x_vel: number = 0, y_vel: number = 0, z_vel: number = 0): VerletParticle{
+		return this.addParticle(
 			osg.Vec3.createAndSet(x, y, z),
 			osg.Vec3.createAndSet(x + x_vel, y + y_vel, z + z_vel)
 		);
 	}
 
-	protected addParticle(pos: osg.Vec3, pos_old?: osg.Vec3) {
+	protected addParticle(pos: osg.Vec3, pos_old?: osg.Vec3): VerletParticle {
+
+		var params: Verlet.ParamsParticleIntegration = this.params();
+
 		var sphere: EntitySphere = new EntitySphere({
-			radius: this._sphereradius
+			radius: params.radius
 		});
 		sphere.create();
 		this.pivot().addChild(sphere);
 
-		this._particles.push(new VerletParticle(
+		var p: VerletParticle = new VerletParticle(
 			pos, pos_old, sphere
-		));
+		);
+
+		this._particles.push(p);
+		return p;
 	}
 
-	protected constrainParticles() {
+	protected updateConstrainParticles() {
+		this.constrainParticles(this._particles);
+	}
+
+	protected constrainParticles(particles: VerletParticle[] ) {
 		
-		for (var i = 0; i < this._particles.length; i++) {
-			var p: VerletParticle = this._particles[i];
+		for (var i = 0; i < particles.length; i++) {
+			var p: VerletParticle = particles[i];
 
 			// calc velocity based on previous position
 			var vel: osg.Vec3 = osg.Vec3.create();
@@ -118,6 +143,10 @@
 		for (var i = 0; i < this._particles.length; i++) {
 			var p: VerletParticle = this._particles[i];
 
+			if (p._pinned) {
+				continue;
+			}
+
 			// calc velocity based on previous position
 			var vel: osg.Vec3 = osg.Vec3.create();
 			osg.Vec3.sub(p._pos, p._pos_old, vel);
@@ -142,8 +171,9 @@
 
 	protected update() {
 		this.updateParticles();
-		this.constrainParticles();
+		this.updateConstrainParticles();
 		this.updateRender();
+		return true;
 	}
 }
 

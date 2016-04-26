@@ -4,19 +4,37 @@
 	private _plane: osg.Plane = null;
 	private _eventMouseDown;
 	protected _sphere: EntitySphere = null;
+	private _show_grid: boolean;
+
+	constructor(show_grid: boolean = true) {
+		super();
+		this._show_grid = show_grid;
+	}
 
 	create() {
 		this._plane = osg.Plane.createAndSet(0,0,1,0);
-		
-		this._grid = new EntityGrid;
-		this._grid.create();
-		this.pivot().addChild(this._grid);
+
+		if (this._show_grid) {
+			this.createGrid();
+		}
 
 		this._sphere = new EntitySphere;
 		this._sphere.create();
 		this.pivot().addChild(this._sphere);
 
 		this.createListerners();
+	}
+
+	public spherePosition() : osg.Vec3 {
+		var pos: osg.Vec3 = osg.Vec3.create();
+		osg.Matrix.getTrans(this._sphere.getMatrix(), pos);
+		return pos;
+	}
+
+	protected createGrid() {
+		this._grid = new EntityGrid;
+		this._grid.create();
+		this.pivot().addChild(this._grid);
 	}
 
 	protected createListerners() {

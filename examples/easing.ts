@@ -8,7 +8,7 @@ class Easing extends ScreenPlaneIntersection {
 		super.create();
 
 		this.addUpdateCallback(new UpdateCallback((node, nodeVisitor) => {
-			this.update();
+			return this.update();
 		}));
 	}
 
@@ -16,7 +16,7 @@ class Easing extends ScreenPlaneIntersection {
 		this._targetPos = pos;
 	}
 	
-	protected update() {
+	protected update() : boolean {
 
 		// apply easing
 		if (this._targetPos) {
@@ -38,6 +38,8 @@ class Easing extends ScreenPlaneIntersection {
 			// update sphere position
 			osg.Matrix.setTrans(m, v[0], v[1], v[2]);
 		}
+
+		return true;
 	}
 
 }

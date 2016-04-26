@@ -18,10 +18,6 @@ class VerletStickIntegration extends VerletParticleIntegration {
 		this.addParticle(
 			osg.Vec3.createAndSet(5, 5, 5),
 			osg.Vec3.createAndSet(4.9, 4.8, 4.7)
-			/*			
-			osg.Vec3.createAndSet(4, 0, 5),
-			osg.Vec3.createAndSet(4.1, 0, 4.7)
-			*/
 		);
 	}
 
@@ -61,9 +57,14 @@ class VerletStickIntegration extends VerletParticleIntegration {
 			osg.Vec3.sub(s._p0._pos, s._p1._pos, adjust_vec);
 			osg.Vec3.normalize(adjust_vec, adjust_vec);
 			osg.Vec3.mult(adjust_vec, diff / 2, adjust_vec);
-			
-			osg.Vec3.add(s._p0._pos, adjust_vec, s._p0._pos);
-			osg.Vec3.sub(s._p1._pos, adjust_vec, s._p1._pos);
+
+			if (!s._p0._pinned) {
+				osg.Vec3.add(s._p0._pos, adjust_vec, s._p0._pos);
+			}
+
+			if (!s._p1._pinned) {
+				osg.Vec3.sub(s._p1._pos, adjust_vec, s._p1._pos);
+			}
 		}
 	}
 
@@ -83,10 +84,12 @@ class VerletStickIntegration extends VerletParticleIntegration {
 		// add some relaxation
 		for (var i = 0; i < 3; i++) {
 			this.updateSticks();
-			this.constrainParticles();
+			this.updateConstrainParticles();
 		}
 
 		this.updateRender();
+
+		return true;
 	}
 
 

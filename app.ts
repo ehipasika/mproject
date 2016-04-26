@@ -10,8 +10,8 @@ class UpdateCallback {
 		this._cb = cb;
 	}
 
-	update(node: osg.Node, nodeVisitor) {
-		this._cb(node, nodeVisitor);
+	update(node: osg.Node, nodeVisitor) : boolean {
+		return this._cb(node, nodeVisitor);
 	}
 }
 
