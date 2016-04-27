@@ -756,6 +756,38 @@ var IkReach = (function (_super) {
     };
     return IkReach;
 })(IkDrag);
+var SpringPull = (function (_super) {
+    __extends(SpringPull, _super);
+    function SpringPull() {
+        _super.apply(this, arguments);
+        this._k = 0.03;
+        this._vel = osg.Vec3.create();
+        this._friction = 0.95;
+    }
+    SpringPull.prototype.create = function () {
+        _super.prototype.create.call(this);
+        this._sphereEnd = new EntitySphere;
+        this._sphereEnd.create();
+        this.pivot().addChild(this._sphereEnd);
+        this._line = new EntityLine;
+        this._line.create();
+        this.pivot().addChild(this._line);
+    };
+    SpringPull.prototype.update = function () {
+        _super.prototype.update.call(this);
+        var pos = this._sphereEnd.position();
+        this._line.setPosition(this._sphere.position(), pos);
+        var F = osg.Vec3.create();
+        osg.Vec3.sub(this._sphere.position(), this._sphereEnd.position(), F);
+        osg.Vec3.mult(F, this._k, F);
+        osg.Vec3.add(this._vel, F, this._vel);
+        osg.Vec3.mult(this._vel, this._friction, this._vel);
+        osg.Vec3.add(pos, this._vel, pos);
+        this._sphereEnd.setPositionFromVec3(pos);
+        return true;
+    };
+    return SpringPull;
+})(EasingToMouse);
 var VerletParticleIntegration = (function (_super) {
     __extends(VerletParticleIntegration, _super);
     function VerletParticleIntegration(params) {
